@@ -77,7 +77,7 @@ public class KafkaEventInput implements IEventInput {
         entity.setUser(dto.getUser());
         entity.setCategory(dto.getCategory());
         entity.setAction(dto.getAction());
-        entity.setDocument(dto.getDocument());
+        entity.setDocumentName(dto.getDocument());
         entity.setProject(dto.getProject());
         entity.setEnvironment(dto.getEnvironment());
         entity.setTenant(dto.getTenant());

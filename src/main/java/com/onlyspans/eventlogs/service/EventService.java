@@ -138,7 +138,7 @@ public class EventService implements IEventService {
                         entity.getUser(),
                         entity.getCategory(),
                         entity.getAction(),
-                        entity.getDocument(),
+                        entity.getDocumentName(),
                         entity.getProject(),
                         entity.getEnvironment(),
                         entity.getTenant(),
@@ -169,7 +169,7 @@ public class EventService implements IEventService {
         entity.setUser(dto.getUser());
         entity.setCategory(dto.getCategory());
         entity.setAction(dto.getAction());
-        entity.setDocument(dto.getDocument());
+        entity.setDocumentName(dto.getDocument());
         entity.setProject(dto.getProject());
         entity.setEnvironment(dto.getEnvironment());
         entity.setTenant(dto.getTenant());
@@ -206,7 +206,7 @@ public class EventService implements IEventService {
         dto.setUser(entity.getUser());
         dto.setCategory(entity.getCategory());
         dto.setAction(entity.getAction());
-        dto.setDocument(entity.getDocument());
+        dto.setDocument(entity.getDocumentName());
         dto.setProject(entity.getProject());
         dto.setEnvironment(entity.getEnvironment());
         dto.setTenant(entity.getTenant());
