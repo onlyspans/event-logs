@@ -1,11 +1,12 @@
 package com.onlyspans.eventlogs.health;
 
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.GetIndexRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.onlyspans.eventlogs.entity.EventEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,22 +15,25 @@ import java.util.Map;
 @RequestMapping("/health")
 public class OpenSearchHealthIndicator {
 
-    private final ElasticsearchOperations elasticsearchOperations;
+    private final RestHighLevelClient client;
 
-    public OpenSearchHealthIndicator(ElasticsearchOperations elasticsearchOperations) {
-        this.elasticsearchOperations = elasticsearchOperations;
+    public OpenSearchHealthIndicator(RestHighLevelClient client) {
+        this.client = client;
     }
 
     @GetMapping("/opensearch")
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> health = new HashMap<>();
         try {
-            // Try to get cluster info by checking if we can access the index operations
-            boolean exists = elasticsearchOperations.indexOps(EventEntity.class).exists();
-            health.put("status", "UP");
-            health.put("opensearch", "connected");
+            boolean ping = client.ping(RequestOptions.DEFAULT);
+            boolean exists = false;
+            try {
+                exists = client.indices().exists(new GetIndexRequest("event-logs"), RequestOptions.DEFAULT);
+            } catch (Exception ignored) {}
+            health.put("status", ping ? "UP" : "DOWN");
+            health.put("opensearch", ping ? "connected" : "disconnected");
             health.put("indexExists", exists);
-            return ResponseEntity.ok(health);
+            return ping ? ResponseEntity.ok(health) : ResponseEntity.status(503).body(health);
         } catch (Exception e) {
             health.put("status", "DOWN");
             health.put("opensearch", "disconnected");

@@ -1,12 +1,14 @@
 package com.onlyspans.eventlogs.config;
 
+import org.apache.http.HttpHost;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.elasticsearch.client.ClientConfiguration;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 
 @Configuration
-public class OpenSearchConfig extends ElasticsearchConfiguration {
+public class OpenSearchConfig {
 
     @Value("${opensearch.host:localhost}")
     private String host;
@@ -17,11 +19,11 @@ public class OpenSearchConfig extends ElasticsearchConfiguration {
     @Value("${opensearch.scheme:http}")
     private String scheme;
 
-    @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
-            .connectedTo(host + ":" + port)
-            .build();
+    @Bean(destroyMethod = "close")
+    public RestHighLevelClient openSearchClient() {
+        return new RestHighLevelClient(
+            RestClient.builder(new HttpHost(host, port, scheme))
+        );
     }
 }
 

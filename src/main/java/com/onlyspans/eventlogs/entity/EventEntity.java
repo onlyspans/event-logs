@@ -1,49 +1,35 @@
 package com.onlyspans.eventlogs.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 import java.util.List;
 
-@Document(indexName = "event-logs")
 public class EventEntity {
-    @Id
     private String id;
 
-    @Field(type = FieldType.Date)
     private Instant timestamp;
 
-    @Field(type = FieldType.Keyword)
     private String user;
 
-    @Field(type = FieldType.Keyword)
     private String category;
 
-    @Field(type = FieldType.Keyword)
     private String action;
 
-    @Field(type = FieldType.Keyword)
-    private String document;
+    // Ensure JSON field is "document"
+    @JsonProperty("document")
+    private String documentName;
 
-    @Field(type = FieldType.Keyword)
     private String project;
 
-    @Field(type = FieldType.Keyword)
     private String environment;
 
-    @Field(type = FieldType.Keyword)
     private String tenant;
 
-    @Field(type = FieldType.Keyword)
     private String correlationId;
 
-    @Field(type = FieldType.Keyword)
     private String traceId;
 
-    @Field(type = FieldType.Object)
     private EventDetails details;
 
     public EventEntity() {
@@ -91,11 +77,11 @@ public class EventEntity {
     }
 
     public String getDocument() {
-        return document;
+        return documentName;
     }
 
     public void setDocument(String document) {
-        this.document = document;
+        this.documentName = document;
     }
 
     public String getProject() {
