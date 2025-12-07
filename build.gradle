@@ -20,15 +20,13 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    // Use OpenSearch client directly instead of Spring Data Elasticsearch
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'com.opencsv:opencsv:5.9'
+    implementation 'com.opencsv:opencsv:5.12.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    // OpenSearch High Level REST Client for compatibility with OpenSearch cluster
-    implementation 'org.opensearch.client:opensearch-rest-high-level-client:2.11.0'
+    implementation 'org.opensearch.client:opensearch-rest-high-level-client:3.3.2'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
