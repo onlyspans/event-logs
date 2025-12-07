@@ -17,7 +17,8 @@ import java.io.IOException;
 public final class OpenSearchIndexConfig implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchIndexConfig.class);
-    private static final String INDEX_NAME = "event-logs";
+    private static final String EVENT_LOGS_INDEX = "event-logs";
+    private static final String SETTINGS_INDEX = ".event-logs-settings";
 
     private final RestHighLevelClient client;
 
@@ -28,19 +29,20 @@ public final class OpenSearchIndexConfig implements CommandLineRunner {
 
     @Override
     public void run(String @NotNull ... args) throws IOException {
-        createIndexIfNotExists();
+        createIndexIfNotExists(EVENT_LOGS_INDEX);
+        createIndexIfNotExists(SETTINGS_INDEX);
     }
 
-    private void createIndexIfNotExists() throws IOException {
-        GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
+    private void createIndexIfNotExists(String indexName) throws IOException {
+        GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
         boolean exists = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
         if (!exists) {
-            logger.info("Creating OpenSearch index: {}", INDEX_NAME);
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest(INDEX_NAME);
+            logger.info("Creating OpenSearch index: {}", indexName);
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
             client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
-            logger.info("Successfully created OpenSearch index: {}", INDEX_NAME);
+            logger.info("Successfully created OpenSearch index: {}", indexName);
         } else {
-            logger.debug("OpenSearch index already exists: {}", INDEX_NAME);
+            logger.debug("OpenSearch index already exists: {}", indexName);
         }
     }
 }
