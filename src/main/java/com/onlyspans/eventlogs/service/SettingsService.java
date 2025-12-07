@@ -31,12 +31,11 @@ public class SettingsService implements ISettingsService {
 
     @Override
     public SettingsDto getSettings() {
-        return settingsStorage.getSettings()
-                .map(this::toDto)
-                .orElseGet(() -> {
-                    logger.debug("No settings found in storage, returning defaults");
-                    return new SettingsDto(defaultRetentionPeriodDays, defaultMaxExportSize);
-                });
+        Integer retentionPeriodDays = settingsStorage.getSettings()
+                .map(SettingsEntity::getRetentionPeriodDays)
+                .orElse(defaultRetentionPeriodDays);
+
+        return new SettingsDto(retentionPeriodDays, defaultMaxExportSize);
     }
 
     @Override
@@ -44,10 +43,11 @@ public class SettingsService implements ISettingsService {
         logger.info("Updating settings: retentionPeriodDays={}, maxExportSize={}",
                 settings.getRetentionPeriodDays(), settings.getMaxExportSize());
 
+        // Only retention period is stored in OpenSearch
+        // maxExportSize is application-level configuration only
         SettingsEntity entity = new SettingsEntity(
                 "global",
                 settings.getRetentionPeriodDays(),
-                settings.getMaxExportSize(),
                 Instant.now(),
                 "api-user"
         );
@@ -55,13 +55,6 @@ public class SettingsService implements ISettingsService {
         settingsStorage.saveSettings(entity);
 
         return settings;
-    }
-
-    private SettingsDto toDto(SettingsEntity entity) {
-        return new SettingsDto(
-                entity.getRetentionPeriodDays(),
-                entity.getMaxExportSize()
-        );
     }
 }
 

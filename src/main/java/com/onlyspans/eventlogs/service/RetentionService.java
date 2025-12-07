@@ -1,5 +1,11 @@
 package com.onlyspans.eventlogs.service;
 
+import org.opensearch.action.support.WriteRequest;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.index.query.QueryBuilders;
+import org.opensearch.index.reindex.BulkByScrollResponse;
+import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +23,15 @@ public class RetentionService {
     private static final String INDEX_NAME = "event-logs";
 
     private final ISettingsService settingsService;
+    private final RestHighLevelClient client;
 
     @Value("${event-logs.retention-period-days:90}")
     private int defaultRetentionPeriodDays;
 
     @Autowired
-    public RetentionService(ISettingsService settingsService) {
+    public RetentionService(ISettingsService settingsService, RestHighLevelClient client) {
         this.settingsService = settingsService;
+        this.client = client;
     }
 
     @Scheduled(cron = "${event-logs.retention.cron:0 0 2 * * ?}") // Daily at 2 AM
@@ -32,14 +40,20 @@ public class RetentionService {
             int retentionDays = settingsService.getSettings().getRetentionPeriodDays();
             Instant cutoffDate = Instant.now().minus(retentionDays, ChronoUnit.DAYS);
 
-            logger.info("Applying retention policy: deleting events older than {} days (before {})", 
+            logger.info("Applying retention policy: deleting events older than {} days (before {})",
                 retentionDays, cutoffDate);
 
-            // In a full implementation, you would use OpenSearch delete by query API
-            // For now, we'll use index lifecycle management (ILM) policy
-            // This is typically configured at the OpenSearch cluster level
-            
-            logger.info("Retention policy applied successfully");
+            DeleteByQueryRequest request = new DeleteByQueryRequest(INDEX_NAME);
+            request.setQuery(QueryBuilders.rangeQuery("timestamp").lt(cutoffDate.toEpochMilli()));
+            request.setRefresh(true);
+            request.setBatchSize(1000);
+            request.setSlices(2);
+
+            BulkByScrollResponse response = client.deleteByQuery(request, RequestOptions.DEFAULT);
+            long deletedCount = response.getDeleted();
+
+            logger.info("Retention policy applied successfully: deleted {} documents older than {}",
+                deletedCount, cutoffDate);
         } catch (Exception e) {
             logger.error("Error applying retention policy", e);
         }

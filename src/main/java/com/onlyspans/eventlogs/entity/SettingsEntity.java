@@ -18,19 +18,15 @@ public class SettingsEntity {
     @JsonProperty("retentionPeriodDays")
     private Integer retentionPeriodDays;
 
-    @JsonProperty("maxExportSize")
-    private Integer maxExportSize;
-
     @JsonProperty("updatedAt")
     private Instant updatedAt;
 
     @JsonProperty("updatedBy")
     private String updatedBy;
 
-    public SettingsEntity(Integer retentionPeriodDays, Integer maxExportSize) {
+    public SettingsEntity(Integer retentionPeriodDays) {
         this.id = "global";
         this.retentionPeriodDays = retentionPeriodDays;
-        this.maxExportSize = maxExportSize;
         this.updatedAt = Instant.now();
         this.updatedBy = "system";
     }
