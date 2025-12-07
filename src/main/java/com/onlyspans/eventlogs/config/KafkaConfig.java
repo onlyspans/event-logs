@@ -2,6 +2,7 @@ package com.onlyspans.eventlogs.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,8 +36,7 @@ public class KafkaConfig {
     private int fetchMaxWaitMs;
 
     @Bean
-    @SuppressWarnings("NullableProblems")
-    public ConsumerFactory<String, String> consumerFactory() {
+    public @NotNull ConsumerFactory<@NotNull String, @NotNull String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -68,8 +68,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    @SuppressWarnings("NullableProblems")
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+    public @NotNull ConcurrentKafkaListenerContainerFactory<@NotNull String, @NotNull String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
