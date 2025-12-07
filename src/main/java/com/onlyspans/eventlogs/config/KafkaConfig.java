@@ -69,7 +69,7 @@ public class KafkaConfig {
 
     @Bean
     public @NotNull ConcurrentKafkaListenerContainerFactory<@NotNull String, @NotNull String> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+        ConcurrentKafkaListenerContainerFactory<@NotNull String, @NotNull String> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
