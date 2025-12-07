@@ -9,19 +9,19 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryResult {
-    private List<EventDto> events;
+public class PagedResult<T> {
+
+    private List<T> items;
     private long total;
     private int page;
-    private int size;
+    private int pageSize;
     private int totalPages;
 
-    public QueryResult(List<EventDto> events, long total, int page, int size) {
-        this.events = events;
+    public PagedResult(List<T> items, long total, int page, int pageSize) {
+        this.items = items;
         this.total = total;
         this.page = page;
-        this.size = size;
-        this.totalPages = size > 0 ? (int) Math.ceil((double) total / size) : 0;
+        this.pageSize = pageSize;
+        this.totalPages = pageSize > 0 ? (int) Math.ceil((double) total / pageSize) : 0;
     }
 }
-

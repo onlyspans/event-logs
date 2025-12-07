@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/events")
@@ -104,10 +106,14 @@ public final class EventController {
         query.setPage(0);
         query.setSize(Integer.MAX_VALUE); // Will be limited by service
 
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        String filename = String.format("events-export_%s_utc.csv", timestamp);
+
         response.setContentType(MediaType.TEXT_PLAIN_VALUE);
-        // TODO: filename should include current datetime utc
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, 
-            "attachment; filename=\"events-export.csv\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + filename + "\"");
 
         eventService.exportCsv(query, response.getOutputStream());
     }

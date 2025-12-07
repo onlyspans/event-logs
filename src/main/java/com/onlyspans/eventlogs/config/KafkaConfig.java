@@ -25,15 +25,22 @@ public class KafkaConfig {
     @Value("${kafka.consumer.group-id:event-logs-consumer-group}")
     private String groupId;
 
+    @Value("${kafka.consumer.max-poll-records:100}")
+    private int maxPollRecords;
+
+    @Value("${kafka.consumer.fetch-min-bytes:1}")
+    private int fetchMinBytes;
+
+    @Value("${kafka.consumer.fetch-max-wait-ms:500}")
+    private int fetchMaxWaitMs;
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
-        // TODO: read about configuration
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        // TODO: read about this one especially – had troubles using graylog before
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         
@@ -43,8 +50,18 @@ public class KafkaConfig {
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
         
-        // Retry configuration
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
+        // Batch configuration
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+
+        // fetch.min.bytes: Minimum amount of data broker should return (default: 1 byte)
+        // Setting to 1 ensures low latency even with single messages
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
+
+        // fetch.max.wait.ms: Max time broker will wait before responding (default: 500ms)
+        // Lower value = lower latency, higher value = better batching
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMs);
+
+        // Session and heartbeat configuration
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000);
 
@@ -58,6 +75,8 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setConcurrency(1);
+        // Enable batch listener mode for batch processing
+        factory.setBatchListener(true);
         return factory;
     }
 }

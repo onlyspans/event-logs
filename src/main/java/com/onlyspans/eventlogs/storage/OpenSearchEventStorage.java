@@ -2,8 +2,11 @@ package com.onlyspans.eventlogs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.onlyspans.eventlogs.dto.PagedResult;
 import com.onlyspans.eventlogs.dto.QueryDto;
 import com.onlyspans.eventlogs.entity.EventEntity;
+import com.onlyspans.eventlogs.exception.EventSearchException;
+import com.onlyspans.eventlogs.exception.EventStorageException;
 
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
@@ -59,7 +62,7 @@ public final class OpenSearchEventStorage implements IEventStorage {
             BulkRequest bulkRequest = new BulkRequest();
             bulkRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
             for (EventEntity event : events) {
-                // TODO: fix unchecked assignment warning
+                @SuppressWarnings("unchecked")
                 Map<String, Object> source = objectMapper.convertValue(event, Map.class);
                 IndexRequest indexRequest = new IndexRequest(INDEX_NAME).source(source);
                 bulkRequest.add(indexRequest);
@@ -67,26 +70,29 @@ public final class OpenSearchEventStorage implements IEventStorage {
             BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
             if (response.hasFailures()) {
                 logger.error("Bulk indexing had failures: {}", response.buildFailureMessage());
-                throw new RuntimeException("Bulk indexing failures: " + response.buildFailureMessage());
+                throw new EventStorageException("Bulk indexing failures: " + response.buildFailureMessage());
             }
             logger.info("Successfully saved {} events to OpenSearch", events.size());
+        } catch (EventStorageException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error saving events to OpenSearch", e);
-            // TODO: do not use RuntimeException, be more specific
-            throw new RuntimeException("Failed to save events to OpenSearch", e);
+            throw new EventStorageException("Failed to save events to OpenSearch", e);
         }
     }
 
     @Override
-    public List<EventEntity> search(QueryDto query) {
-        // TODO: should return page information as well (total count, page size, page count)
+    public PagedResult<EventEntity> search(QueryDto query) {
         try {
             QueryBuilder qb = buildQuery(query);
 
+            int page = query.getPage() != null ? query.getPage() : 0;
+            int pageSize = query.getSize() != null ? query.getSize() : 20;
+
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                     .query(qb)
-                    .from(query.getPage() != null ? query.getPage() * (query.getSize() != null ? query.getSize() : 20) : 0)
-                    .size(query.getSize() != null ? query.getSize() : 20);
+                    .from(page * pageSize)
+                    .size(pageSize);
 
             String sortField = query.getSortBy() != null ? query.getSortBy() : "timestamp";
             SortOrder order = "asc".equalsIgnoreCase(query.getSortOrder()) ? SortOrder.ASC : SortOrder.DESC;
@@ -102,11 +108,13 @@ public final class OpenSearchEventStorage implements IEventStorage {
                 entity.setId(hit.getId());
                 results.add(entity);
             }
-            return results;
+
+            org.apache.lucene.search.TotalHits totalHits = response.getHits().getTotalHits();
+            long total = totalHits != null ? totalHits.value() : 0L;
+            return new PagedResult<>(results, total, page, pageSize);
         } catch (Exception e) {
             logger.error("Error searching events in OpenSearch", e);
-            // TODO: do not use RuntimeException
-            throw new RuntimeException("Failed to search events in OpenSearch", e);
+            throw new EventSearchException("Failed to search events in OpenSearch", e);
         }
     }
 
@@ -120,7 +128,7 @@ public final class OpenSearchEventStorage implements IEventStorage {
             return response.getCount();
         } catch (Exception e) {
             logger.error("Error counting events in OpenSearch", e);
-            throw new RuntimeException("Failed to count events in OpenSearch", e);
+            throw new EventSearchException("Failed to count events in OpenSearch", e);
         }
     }
 

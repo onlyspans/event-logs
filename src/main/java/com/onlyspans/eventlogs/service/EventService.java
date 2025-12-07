@@ -2,6 +2,7 @@ package com.onlyspans.eventlogs.service;
 
 import com.opencsv.CSVWriter;
 import com.onlyspans.eventlogs.dto.EventDto;
+import com.onlyspans.eventlogs.dto.PagedResult;
 import com.onlyspans.eventlogs.dto.QueryDto;
 import com.onlyspans.eventlogs.dto.QueryResult;
 import com.onlyspans.eventlogs.entity.EventEntity;
@@ -77,15 +78,15 @@ public class EventService implements IEventService {
     public QueryResult searchEvents(QueryDto query) {
         try {
             eventsSearchedCounter.increment();
-            
-            List<EventEntity> entities = eventStorage.search(query);
-            long total = eventStorage.count(query);
 
-            List<EventDto> dtos = entities.stream()
+            PagedResult<EventEntity> pagedResult = eventStorage.search(query);
+
+            List<EventDto> dtos = pagedResult.getItems().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
-            return new QueryResult(dtos, total, query.getPage(), query.getSize());
+            return new QueryResult(dtos, pagedResult.getTotal(),
+                pagedResult.getPage(), pagedResult.getPageSize());
         } catch (Exception e) {
             logger.error("Error searching events", e);
             throw new RuntimeException("Failed to search events", e);
@@ -113,10 +114,11 @@ public class EventService implements IEventService {
             limitedQuery.setPage(0);
             limitedQuery.setSize(maxExportSize);
 
-            List<EventEntity> entities = eventStorage.search(limitedQuery);
-            
+            PagedResult<EventEntity> pagedResult = eventStorage.search(limitedQuery);
+            List<EventEntity> entities = pagedResult.getItems();
+
             if (entities.size() >= maxExportSize) {
-                logger.warn("Export result size ({}) reached max export size limit ({})", 
+                logger.warn("Export result size ({}) reached max export size limit ({})",
                     entities.size(), maxExportSize);
             }
 
