@@ -14,31 +14,37 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class EventProcessingJob {
+public final class EventProcessingJob {
 
     private static final Logger logger = LoggerFactory.getLogger(EventProcessingJob.class);
 
     private final IEventInput eventInput;
     private final IEventStorage eventStorage;
+
     private final Counter eventsProcessedCounter;
     private final Counter jobExecutionCounter;
 
     @Autowired
-    public EventProcessingJob(IEventInput eventInput, 
-                             IEventStorage eventStorage,
-                             MeterRegistry meterRegistry) {
+    public EventProcessingJob(
+            IEventInput eventInput,
+            IEventStorage eventStorage,
+            MeterRegistry meterRegistry
+    ) {
         this.eventInput = eventInput;
         this.eventStorage = eventStorage;
+
         this.eventsProcessedCounter = Counter.builder("event_logs.job.processed")
-            .description("Total number of events processed by job")
-            .register(meterRegistry);
+                .description("Total number of events processed by job")
+                .register(meterRegistry);
+
         this.jobExecutionCounter = Counter.builder("event_logs.job.executions")
-            .description("Total number of job executions")
-            .register(meterRegistry);
+                .description("Total number of job executions")
+                .register(meterRegistry);
     }
 
     @Scheduled(fixedDelayString = "${event-logs.job.interval-ms:5000}")
     public void execute() {
+        // TODO: rework, read batches all the time
         try {
             jobExecutionCounter.increment();
             logger.debug("Starting event processing job");
