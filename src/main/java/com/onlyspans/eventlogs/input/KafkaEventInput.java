@@ -21,9 +21,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class KafkaEventInput implements IEventInput {
+public final class KafkaEventInput implements IEventInput {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaEventInput.class);
+
     private final BlockingQueue<EventEntity> eventQueue = new LinkedBlockingQueue<>();
     private final ObjectMapper objectMapper;
 
@@ -47,7 +48,8 @@ public class KafkaEventInput implements IEventInput {
             
             EventDto eventDto = objectMapper.readValue(message, EventDto.class);
             EventEntity eventEntity = convertToEntity(eventDto);
-            
+
+            // TODO: handle return value
             eventQueue.offer(eventEntity, 1, TimeUnit.SECONDS);
             
             if (acknowledgment != null) {
@@ -57,12 +59,14 @@ public class KafkaEventInput implements IEventInput {
             logger.debug("Successfully processed event with ID: {}", eventEntity.getId());
         } catch (Exception e) {
             logger.error("Error processing Kafka message: {}", message, e);
-            // In a production system, you might want to send to a dead letter queue
-            // For now, we'll just log the error
+
+            // TODO: send to a dead letter queue
             throw new RuntimeException("Failed to process Kafka message", e);
         }
     }
 
+    // TODO: read batches. Seems like this input should be reworked and write logs directly to OpenSearch
+    // TODO: Otherwise logs may be lost during application restart.
     @Override
     public List<EventEntity> read() {
         List<EventEntity> events = new ArrayList<>();
@@ -70,6 +74,7 @@ public class KafkaEventInput implements IEventInput {
         return events;
     }
 
+    // TODO: maybe we can use mapper instead?
     private EventEntity convertToEntity(EventDto dto) {
         EventEntity entity = new EventEntity();
         entity.setId(dto.getId());
