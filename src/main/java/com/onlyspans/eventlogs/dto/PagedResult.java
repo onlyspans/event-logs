@@ -1,5 +1,6 @@
 package com.onlyspans.eventlogs.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,19 @@ import java.util.List;
 @AllArgsConstructor
 public class PagedResult<T> {
 
+    @JsonProperty("items")
     private List<T> items;
+
+    @JsonProperty("total")
     private long total;
+
+    @JsonProperty("page")
     private int page;
+
+    @JsonProperty("pageSize")
     private int pageSize;
+
+    @JsonProperty("totalPages")
     private int totalPages;
 
     public PagedResult(List<T> items, long total, int page, int pageSize) {
