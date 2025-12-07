@@ -3,10 +3,11 @@ package com.onlyspans.eventlogs.controller;
 import com.onlyspans.eventlogs.dto.QueryDto;
 import com.onlyspans.eventlogs.dto.QueryResult;
 import com.onlyspans.eventlogs.service.IEventService;
+
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/events")
-public class EventController {
+public final class EventController {
 
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
 
@@ -28,6 +29,8 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    // TODO: maybe there's a way to represent query parameters as an object.
+    // TODO: if the thing above is possible, extract QueryDto building into method (now IDE tells it's duplicate code)
     @GetMapping
     public QueryResult searchEvents(
         @RequestParam(required = false) String user,
@@ -102,6 +105,7 @@ public class EventController {
         query.setSize(Integer.MAX_VALUE); // Will be limited by service
 
         response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        // TODO: filename should include current datetime utc
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, 
             "attachment; filename=\"events-export.csv\"");
 
