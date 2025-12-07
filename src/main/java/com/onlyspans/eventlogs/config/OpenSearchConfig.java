@@ -1,6 +1,6 @@
 package com.onlyspans.eventlogs.config;
 
-import org.apache.http.HttpHost;
+import org.apache.hc.core5.http.HttpHost;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ public class OpenSearchConfig {
     @Bean(destroyMethod = "close")
     public RestHighLevelClient openSearchClient() {
         return new RestHighLevelClient(
-            RestClient.builder(new HttpHost(host, port, scheme))
+            RestClient.builder(new HttpHost(scheme, host, port))
         );
     }
 }
