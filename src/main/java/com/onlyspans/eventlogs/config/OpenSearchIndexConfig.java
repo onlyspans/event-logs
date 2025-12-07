@@ -1,5 +1,6 @@
 package com.onlyspans.eventlogs.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public final class OpenSearchIndexConfig implements CommandLineRunner {
@@ -24,26 +27,20 @@ public final class OpenSearchIndexConfig implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String @NotNull ... args) throws IOException {
         createIndexIfNotExists();
     }
 
-    // TODO: should it be implemented as migration or something?
-    private void createIndexIfNotExists() {
-        try {
-            GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
-            boolean exists = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
-            if (!exists) {
-                logger.info("Creating OpenSearch index: {}", INDEX_NAME);
-                CreateIndexRequest createIndexRequest = new CreateIndexRequest(INDEX_NAME);
-                client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
-                logger.info("Successfully created OpenSearch index: {}", INDEX_NAME);
-            } else {
-                logger.debug("OpenSearch index already exists: {}", INDEX_NAME);
-            }
-        } catch (Exception e) {
-            logger.error("Error creating OpenSearch index", e);
-            // Do not fail startup if index creation fails
+    private void createIndexIfNotExists() throws IOException {
+        GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
+        boolean exists = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
+        if (!exists) {
+            logger.info("Creating OpenSearch index: {}", INDEX_NAME);
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(INDEX_NAME);
+            client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+            logger.info("Successfully created OpenSearch index: {}", INDEX_NAME);
+        } else {
+            logger.debug("OpenSearch index already exists: {}", INDEX_NAME);
         }
     }
 }
