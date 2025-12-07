@@ -11,7 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OpenSearchIndexConfig implements CommandLineRunner {
+public final class OpenSearchIndexConfig implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchIndexConfig.class);
     private static final String INDEX_NAME = "event-logs";
@@ -28,6 +28,7 @@ public class OpenSearchIndexConfig implements CommandLineRunner {
         createIndexIfNotExists();
     }
 
+    // TODO: should it be implemented as migration or something?
     private void createIndexIfNotExists() {
         try {
             GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
