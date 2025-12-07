@@ -1,8 +1,10 @@
 package com.onlyspans.eventlogs.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.onlyspans.eventlogs.dto.QueryDto;
 import com.onlyspans.eventlogs.entity.EventEntity;
+
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
@@ -20,8 +22,10 @@ import org.opensearch.index.query.RangeQueryBuilder;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortOrder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -29,10 +33,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
-public class OpenSearchEventStorage implements IEventStorage {
+public final class OpenSearchEventStorage implements IEventStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchEventStorage.class);
     private static final String INDEX_NAME = "event-logs";
@@ -56,6 +59,7 @@ public class OpenSearchEventStorage implements IEventStorage {
             BulkRequest bulkRequest = new BulkRequest();
             bulkRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
             for (EventEntity event : events) {
+                // TODO: fix unchecked assignment warning
                 Map<String, Object> source = objectMapper.convertValue(event, Map.class);
                 IndexRequest indexRequest = new IndexRequest(INDEX_NAME).source(source);
                 bulkRequest.add(indexRequest);
@@ -68,19 +72,21 @@ public class OpenSearchEventStorage implements IEventStorage {
             logger.info("Successfully saved {} events to OpenSearch", events.size());
         } catch (Exception e) {
             logger.error("Error saving events to OpenSearch", e);
+            // TODO: do not use RuntimeException, be more specific
             throw new RuntimeException("Failed to save events to OpenSearch", e);
         }
     }
 
     @Override
     public List<EventEntity> search(QueryDto query) {
+        // TODO: should return page information as well (total count, page size, page count)
         try {
             QueryBuilder qb = buildQuery(query);
 
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .query(qb)
-                .from(query.getPage() != null ? query.getPage() * (query.getSize() != null ? query.getSize() : 20) : 0)
-                .size(query.getSize() != null ? query.getSize() : 20);
+                    .query(qb)
+                    .from(query.getPage() != null ? query.getPage() * (query.getSize() != null ? query.getSize() : 20) : 0)
+                    .size(query.getSize() != null ? query.getSize() : 20);
 
             String sortField = query.getSortBy() != null ? query.getSortBy() : "timestamp";
             SortOrder order = "asc".equalsIgnoreCase(query.getSortOrder()) ? SortOrder.ASC : SortOrder.DESC;
@@ -99,6 +105,7 @@ public class OpenSearchEventStorage implements IEventStorage {
             return results;
         } catch (Exception e) {
             logger.error("Error searching events in OpenSearch", e);
+            // TODO: do not use RuntimeException
             throw new RuntimeException("Failed to search events in OpenSearch", e);
         }
     }
