@@ -1,6 +1,6 @@
 package com.onlyspans.eventlogs.repository;
 
-import com.onlyspans.eventlogs.entity.jpa.EventJpaEntity;
+import com.onlyspans.eventlogs.entity.EventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,9 +12,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Repository
-public interface EventRepository extends JpaRepository<EventJpaEntity, UUID>, JpaSpecificationExecutor<EventJpaEntity> {
+public interface EventRepository extends JpaRepository<EventEntity, UUID>, JpaSpecificationExecutor<EventEntity> {
 
     @Modifying
-    @Query("DELETE FROM EventJpaEntity e WHERE e.timestamp < :cutoffDate")
+    @Query("DELETE FROM EventEntity e WHERE e.timestamp < :cutoffDate")
     int deleteEventsOlderThan(@Param("cutoffDate") Instant cutoffDate);
 }

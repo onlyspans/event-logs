@@ -1,7 +1,6 @@
 package com.onlyspans.eventlogs.storage;
 
 import com.onlyspans.eventlogs.entity.SettingsEntity;
-import com.onlyspans.eventlogs.entity.jpa.SettingsJpaEntity;
 import com.onlyspans.eventlogs.repository.SettingsRepository;
 
 import org.slf4j.Logger;
@@ -25,8 +24,7 @@ public class SettingsStorage implements ISettingsStorage {
     @Override
     public Optional<SettingsEntity> getSettings() {
         try {
-            return settingsRepository.findById(GLOBAL_ID)
-                    .map(SettingsJpaEntity::toEntity);
+            return settingsRepository.findById(GLOBAL_ID);
         } catch (Exception e) {
             logger.error("Error retrieving settings from storage", e);
             return Optional.empty();
@@ -36,8 +34,7 @@ public class SettingsStorage implements ISettingsStorage {
     @Override
     public void saveSettings(SettingsEntity settings) {
         try {
-            SettingsJpaEntity jpaEntity = SettingsJpaEntity.fromEntity(settings);
-            settingsRepository.save(jpaEntity);
+            settingsRepository.save(settings);
             logger.info("Successfully saved settings to storage");
         } catch (Exception e) {
             logger.error("Error saving settings to storage", e);

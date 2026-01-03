@@ -3,7 +3,6 @@ package com.onlyspans.eventlogs.storage;
 import com.onlyspans.eventlogs.dto.PagedResult;
 import com.onlyspans.eventlogs.dto.QueryDto;
 import com.onlyspans.eventlogs.entity.EventEntity;
-import com.onlyspans.eventlogs.entity.jpa.EventJpaEntity;
 import com.onlyspans.eventlogs.exception.EventSearchException;
 import com.onlyspans.eventlogs.exception.EventStorageException;
 import com.onlyspans.eventlogs.repository.EventRepository;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EventStorage implements IEventStorage {
 
@@ -39,11 +37,7 @@ public class EventStorage implements IEventStorage {
         }
 
         try {
-            List<EventJpaEntity> jpaEntities = events.stream()
-                    .map(EventJpaEntity::fromEntity)
-                    .collect(Collectors.toList());
-
-            eventRepository.saveAll(jpaEntities);
+            eventRepository.saveAll(events);
             logger.info("Successfully saved {} events to storage", events.size());
         } catch (Exception e) {
             logger.error("Error saving events to storage", e);
@@ -54,7 +48,7 @@ public class EventStorage implements IEventStorage {
     @Override
     public PagedResult<EventEntity> search(QueryDto query) {
         try {
-            Specification<EventJpaEntity> spec = EventSpecification.buildSpecification(query);
+            Specification<EventEntity> spec = EventSpecification.buildSpecification(query);
 
             int page = query.getPage() != null ? query.getPage() : 0;
             int pageSize = query.getSize() != null ? query.getSize() : 20;
@@ -65,13 +59,9 @@ public class EventStorage implements IEventStorage {
                     : Sort.Direction.DESC;
 
             Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortField));
-            Page<EventJpaEntity> resultPage = eventRepository.findAll(spec, pageable);
+            Page<EventEntity> resultPage = eventRepository.findAll(spec, pageable);
 
-            List<EventEntity> results = resultPage.getContent().stream()
-                    .map(EventJpaEntity::toEntity)
-                    .collect(Collectors.toList());
-
-            return new PagedResult<>(results, resultPage.getTotalElements(), page, pageSize);
+            return new PagedResult<>(resultPage.getContent(), resultPage.getTotalElements(), page, pageSize);
         } catch (Exception e) {
             logger.error("Error searching events in storage", e);
             throw new EventSearchException("Failed to search events in storage", e);
@@ -81,7 +71,7 @@ public class EventStorage implements IEventStorage {
     @Override
     public long count(QueryDto query) {
         try {
-            Specification<EventJpaEntity> spec = EventSpecification.buildSpecification(query);
+            Specification<EventEntity> spec = EventSpecification.buildSpecification(query);
             return eventRepository.count(spec);
         } catch (Exception e) {
             logger.error("Error counting events in storage", e);

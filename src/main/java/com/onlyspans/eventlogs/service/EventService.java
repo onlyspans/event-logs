@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -135,7 +136,7 @@ public class EventService implements IEventService {
                 // Write data
                 for (EventEntity entity : entities) {
                     writer.writeNext(new String[]{
-                        entity.getId(),
+                        entity.getId() != null ? entity.getId().toString() : "",
                         entity.getTimestamp() != null ? entity.getTimestamp().toString() : "",
                         entity.getUser(),
                         entity.getCategory(),
@@ -146,11 +147,11 @@ public class EventService implements IEventService {
                         entity.getTenant(),
                         entity.getCorrelationId() != null ? entity.getCorrelationId() : "",
                         entity.getTraceId() != null ? entity.getTraceId() : "",
-                        entity.getDetails() != null && entity.getDetails().getIpAddress() != null 
+                        entity.getDetails() != null && entity.getDetails().getIpAddress() != null
                             ? entity.getDetails().getIpAddress() : "",
-                        entity.getDetails() != null && entity.getDetails().getUserAgent() != null 
+                        entity.getDetails() != null && entity.getDetails().getUserAgent() != null
                             ? entity.getDetails().getUserAgent() : "",
-                        entity.getDetails() != null && entity.getDetails().getAdditionalInfo() != null 
+                        entity.getDetails() != null && entity.getDetails().getAdditionalInfo() != null
                             ? entity.getDetails().getAdditionalInfo() : ""
                     });
                 }
@@ -166,7 +167,14 @@ public class EventService implements IEventService {
 
     private EventEntity convertToEntity(EventDto dto) {
         EventEntity entity = new EventEntity();
-        entity.setId(dto.getId());
+        if (dto.getId() != null && !dto.getId().isEmpty()) {
+            try {
+                entity.setId(UUID.fromString(dto.getId()));
+            } catch (IllegalArgumentException e) {
+                // If ID is not a valid UUID, let JPA generate one
+                logger.warn("Invalid UUID format in DTO: {}", dto.getId());
+            }
+        }
         entity.setTimestamp(dto.getTimestamp() != null ? dto.getTimestamp() : Instant.now());
         entity.setUser(dto.getUser());
         entity.setCategory(dto.getCategory());
@@ -175,6 +183,8 @@ public class EventService implements IEventService {
         entity.setProject(dto.getProject());
         entity.setEnvironment(dto.getEnvironment());
         entity.setTenant(dto.getTenant());
+        entity.setCorrelationId(dto.getCorrelationId());
+        entity.setTraceId(dto.getTraceId());
 
         if (dto.getDetails() != null) {
             EventEntity.EventDetails details = new EventEntity.EventDetails();
@@ -203,7 +213,7 @@ public class EventService implements IEventService {
 
     private EventDto convertToDto(EventEntity entity) {
         EventDto dto = new EventDto();
-        dto.setId(entity.getId());
+        dto.setId(entity.getId() != null ? entity.getId().toString() : null);
         dto.setTimestamp(entity.getTimestamp());
         dto.setUser(entity.getUser());
         dto.setCategory(entity.getCategory());
@@ -212,6 +222,8 @@ public class EventService implements IEventService {
         dto.setProject(entity.getProject());
         dto.setEnvironment(entity.getEnvironment());
         dto.setTenant(entity.getTenant());
+        dto.setCorrelationId(entity.getCorrelationId());
+        dto.setTraceId(entity.getTraceId());
 
         if (entity.getDetails() != null) {
             EventDto.EventDetailsDto detailsDto = new EventDto.EventDetailsDto();

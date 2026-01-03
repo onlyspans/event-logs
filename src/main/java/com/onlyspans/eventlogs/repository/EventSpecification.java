@@ -1,7 +1,7 @@
 package com.onlyspans.eventlogs.repository;
 
 import com.onlyspans.eventlogs.dto.QueryDto;
-import com.onlyspans.eventlogs.entity.jpa.EventJpaEntity;
+import com.onlyspans.eventlogs.entity.EventEntity;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class EventSpecification {
 
-    public static Specification<EventJpaEntity> buildSpecification(QueryDto query) {
+    public static Specification<EventEntity> buildSpecification(QueryDto query) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
