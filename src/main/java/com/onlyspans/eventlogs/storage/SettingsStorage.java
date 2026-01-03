@@ -10,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
-public class PostgresSettingsStorage implements ISettingsStorage {
+public class SettingsStorage implements ISettingsStorage {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgresSettingsStorage.class);
+    private static final Logger logger = LoggerFactory.getLogger(SettingsStorage.class);
     private static final String GLOBAL_ID = "global";
 
     private final SettingsRepository settingsRepository;
 
     @Autowired
-    public PostgresSettingsStorage(SettingsRepository settingsRepository) {
+    public SettingsStorage(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
     }
 
@@ -28,7 +28,7 @@ public class PostgresSettingsStorage implements ISettingsStorage {
             return settingsRepository.findById(GLOBAL_ID)
                     .map(SettingsJpaEntity::toEntity);
         } catch (Exception e) {
-            logger.error("Error retrieving settings from PostgreSQL", e);
+            logger.error("Error retrieving settings from storage", e);
             return Optional.empty();
         }
     }
@@ -38,10 +38,10 @@ public class PostgresSettingsStorage implements ISettingsStorage {
         try {
             SettingsJpaEntity jpaEntity = SettingsJpaEntity.fromEntity(settings);
             settingsRepository.save(jpaEntity);
-            logger.info("Successfully saved settings to PostgreSQL");
+            logger.info("Successfully saved settings to storage");
         } catch (Exception e) {
-            logger.error("Error saving settings to PostgreSQL", e);
-            throw new RuntimeException("Failed to save settings to PostgreSQL", e);
+            logger.error("Error saving settings to storage", e);
+            throw new RuntimeException("Failed to save settings to storage", e);
         }
     }
 }

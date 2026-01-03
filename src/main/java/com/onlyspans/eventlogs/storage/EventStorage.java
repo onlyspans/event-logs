@@ -21,14 +21,14 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PostgresEventStorage implements IEventStorage {
+public class EventStorage implements IEventStorage {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgresEventStorage.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventStorage.class);
 
     private final EventRepository eventRepository;
 
     @Autowired
-    public PostgresEventStorage(EventRepository eventRepository) {
+    public EventStorage(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
     }
 
@@ -44,10 +44,10 @@ public class PostgresEventStorage implements IEventStorage {
                     .collect(Collectors.toList());
 
             eventRepository.saveAll(jpaEntities);
-            logger.info("Successfully saved {} events to PostgreSQL", events.size());
+            logger.info("Successfully saved {} events to storage", events.size());
         } catch (Exception e) {
-            logger.error("Error saving events to PostgreSQL", e);
-            throw new EventStorageException("Failed to save events to PostgreSQL", e);
+            logger.error("Error saving events to storage", e);
+            throw new EventStorageException("Failed to save events to storage", e);
         }
     }
 
@@ -73,8 +73,8 @@ public class PostgresEventStorage implements IEventStorage {
 
             return new PagedResult<>(results, resultPage.getTotalElements(), page, pageSize);
         } catch (Exception e) {
-            logger.error("Error searching events in PostgreSQL", e);
-            throw new EventSearchException("Failed to search events in PostgreSQL", e);
+            logger.error("Error searching events in storage", e);
+            throw new EventSearchException("Failed to search events in storage", e);
         }
     }
 
@@ -84,8 +84,8 @@ public class PostgresEventStorage implements IEventStorage {
             Specification<EventJpaEntity> spec = EventSpecification.buildSpecification(query);
             return eventRepository.count(spec);
         } catch (Exception e) {
-            logger.error("Error counting events in PostgreSQL", e);
-            throw new EventSearchException("Failed to count events in PostgreSQL", e);
+            logger.error("Error counting events in storage", e);
+            throw new EventSearchException("Failed to count events in storage", e);
         }
     }
 }

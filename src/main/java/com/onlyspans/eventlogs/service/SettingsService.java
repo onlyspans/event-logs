@@ -43,7 +43,7 @@ public class SettingsService implements ISettingsService {
         logger.info("Updating settings: retentionPeriodDays={}, maxExportSize={}",
                 settings.getRetentionPeriodDays(), settings.getMaxExportSize());
 
-        // Only retention period is stored in OpenSearch
+        // Only retention period is stored in database
         // maxExportSize is application-level configuration only
         SettingsEntity entity = new SettingsEntity(
                 "global",

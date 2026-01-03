@@ -97,13 +97,13 @@ public final class KafkaEventConsumer {
             throw new RuntimeException("Failed to parse entire batch");
         }
 
-        // Write to OpenSearch via EventService (handles conversion and storage)
+        // Write to storage via EventService (handles conversion and storage)
         try {
             eventService.ingestEvents(eventDtos);
-            logger.info("Successfully wrote {} events to OpenSearch", eventDtos.size());
+            logger.info("Successfully processed {} events", eventDtos.size());
             batchesProcessedCounter.increment();
 
-            // Acknowledge only after successful write to OpenSearch
+            // Acknowledge only after successful write to storage
             if (acknowledgment != null) {
                 acknowledgment.acknowledge();
                 logger.debug("Acknowledged batch of {} messages", messages.size());
@@ -116,9 +116,9 @@ public final class KafkaEventConsumer {
                     failedMessages.size(), messages.size(), eventDtos.size());
             }
         } catch (Exception e) {
-            logger.error("Failed to write batch to OpenSearch. Batch size: {}. " +
+            logger.error("Failed to write batch to storage. Batch size: {}. " +
                 "Will not acknowledge to trigger reprocessing.", eventDtos.size(), e);
-            throw new RuntimeException("Failed to write events to OpenSearch", e);
+            throw new RuntimeException("Failed to write events to storage", e);
         }
     }
 }
