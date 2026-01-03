@@ -1,24 +1,24 @@
-[sources.docker_logs]
-type = "docker_logs"
-docker_host = "unix:///var/run/docker.sock"
+# [sources.docker_logs]
+# type = "docker_logs"
+# docker_host = "unix:///var/run/docker.sock"
 
 [sources.java_logs]
 type = "file"
 include = ["/var/log/java/*.ndjson", "/var/log/java/*.log"]
 read_from = "end"
 
-[transforms.parse_docker]
-type = "remap"
-inputs = ["docker_logs"]
-source = '''
-  .timestamp = now()
-  .container_name = .container_name
-  .image = .image
-  .stream = .stream
-  .message = .message
-  .source = "docker"
-  .level = "info"
-'''
+#[transforms.parse_docker]
+#type = "remap"
+#inputs = ["docker_logs"]
+#source = '''
+#  .timestamp = now()
+#  .container_name = .container_name
+#  .image = .image
+#  .stream = .stream
+#  .message = .message
+#  .source = "docker"
+#  .level = "info"
+#'''
 
 [transforms.parse_java]
 type = "remap"
@@ -43,7 +43,7 @@ source = '''
 
 [sinks.victoria_logs]
 type = "http"
-inputs = ["parse_docker", "parse_java"]
+inputs = ["parse_java"]
 uri = "http://victoria-logs:9428/insert/jsonline"
 encoding.codec = "json"
 healthcheck.enabled = true
