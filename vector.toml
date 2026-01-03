@@ -1,24 +1,24 @@
-# [sources.docker_logs]
-# type = "docker_logs"
-# docker_host = "unix:///var/run/docker.sock"
+ [sources.docker_logs]
+ type = "docker_logs"
+ docker_host = "unix:///var/run/docker.sock"
 
 [sources.java_logs]
 type = "file"
 include = ["/var/log/java/*.ndjson", "/var/log/java/*.log"]
 read_from = "end"
 
-#[transforms.parse_docker]
-#type = "remap"
-#inputs = ["docker_logs"]
-#source = '''
-#  .timestamp = now()
-#  .container_name = .container_name
-#  .image = .image
-#  .stream = .stream
-#  .message = .message
-#  .source = "docker"
-#  .level = "info"
-#'''
+[transforms.parse_docker]
+type = "remap"
+inputs = ["docker_logs"]
+source = '''
+  .timestamp = now()
+  .container_name = .container_name
+  .image = .image
+  .stream = .stream
+  .message = .message
+  .source = "docker"
+  .level = "info"
+'''
 
 [transforms.parse_java]
 type = "remap"
@@ -43,13 +43,27 @@ source = '''
 
 [sinks.victoria_logs]
 type = "http"
-inputs = ["parse_java"]
+inputs = ["parse_java", "parse_docker"]
 uri = "http://victoria-logs:9428/insert/jsonline"
-encoding.codec = "json"
-healthcheck.enabled = true
-batch.max_events = 100
-batch.timeout_secs = 5
+compression = "gzip"
+healthcheck.enabled = false
+
+[sinks.victoria_logs.encoding]
+codec = "json"
+
+[sinks.victoria_logs.encoding.json]
+pretty = false
+
+[sinks.victoria_logs.framing]
+method = "newline_delimited"
+
+[sinks.victoria_logs.batch]
+max_events = 1000
+timeout_secs = 1
 
 [sinks.victoria_logs.request]
 headers.AccountID = "0"
 headers.ProjectID = "0"
+headers.VL-Msg-Field = "message"
+headers.VL-Time-Field = "timestamp"
+headers.VL-Stream-Fields = "application,level,logger_name"
