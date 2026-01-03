@@ -9,11 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
+@ConditionalOnProperty(name = "storage.type", havingValue = "opensearch")
 public final class OpenSearchIndexConfig implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchIndexConfig.class);

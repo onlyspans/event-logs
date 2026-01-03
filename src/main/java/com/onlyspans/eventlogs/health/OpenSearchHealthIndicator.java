@@ -3,6 +3,7 @@ package com.onlyspans.eventlogs.health;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.GetIndexRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/health")
+@ConditionalOnProperty(name = "storage.type", havingValue = "opensearch")
 public class OpenSearchHealthIndicator {
 
     private final RestHighLevelClient client;

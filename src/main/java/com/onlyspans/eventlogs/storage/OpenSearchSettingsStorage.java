@@ -19,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 import java.util.Optional;
 
-@Repository
 public class OpenSearchSettingsStorage implements ISettingsStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenSearchSettingsStorage.class);
