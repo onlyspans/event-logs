@@ -1,6 +1,5 @@
 package com.onlyspans.eventlogs.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +29,6 @@ public class EventEntity {
     private String category;
     private String action;
 
-    @JsonProperty("document")
     @Column(name = "document_name")
     private String documentName;
 
