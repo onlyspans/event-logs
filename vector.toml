@@ -1,0 +1,55 @@
+[sources.docker_logs]
+type = "docker_logs"
+docker_host = "unix:///var/run/docker.sock"
+
+[sources.java_logs]
+type = "file"
+include = ["/var/log/java/*.ndjson", "/var/log/java/*.log"]
+read_from = "end"
+
+[transforms.parse_docker]
+type = "remap"
+inputs = ["docker_logs"]
+source = '''
+  .timestamp = now()
+  .container_name = .container_name
+  .image = .image
+  .stream = .stream
+  .message = .message
+  .source = "docker"
+  .level = "info"
+'''
+
+[transforms.parse_java]
+type = "remap"
+inputs = ["java_logs"]
+source = '''
+  # Try to parse as JSON first (for .ndjson files)
+  parsed, err = parse_json(.message)
+  if err == null {
+    . = merge!(., parsed)
+    .timestamp = .@timestamp
+    .level = downcase!(.level)
+  } else {
+    # Plain text logs
+    .timestamp = now()
+    .message = .message
+    .level = "info"
+  }
+  .file = .file
+  # Remove duplicate timestamp field if exists
+  del(.@timestamp)
+'''
+
+[sinks.victoria_logs]
+type = "http"
+inputs = ["parse_docker", "parse_java"]
+uri = "http://victoria-logs:9428/insert/jsonline"
+encoding.codec = "json"
+healthcheck.enabled = true
+batch.max_events = 100
+batch.timeout_secs = 5
+
+[sinks.victoria_logs.request]
+headers.AccountID = "0"
+headers.ProjectID = "0"
