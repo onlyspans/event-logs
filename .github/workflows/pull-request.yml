@@ -13,6 +13,11 @@ jobs:
     name: Run Unit Tests
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,6 +41,9 @@ jobs:
         with:
           files: |
             build/test-results/test/*.xml
+          check_name: Test Results
+          comment_title: Test Results
+          compare_to_earlier_commit: false
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
@@ -46,59 +54,6 @@ jobs:
             build/reports/tests/test/
             build/test-results/test/
           retention-days: 30
-
-      - name: Comment test results on PR
-        uses: actions/github-script@v7
-        if: always() && github.event_name == 'pull_request'
-        with:
-          script: |
-            const fs = require('fs');
-            const testResultsPath = 'build/test-results/test';
-
-            let passed = 0;
-            let failed = 0;
-            let skipped = 0;
-
-            try {
-              const files = fs.readdirSync(testResultsPath);
-              const xmlFiles = files.filter(f => f.endsWith('.xml'));
-
-              for (const file of xmlFiles) {
-                const content = fs.readFileSync(`${testResultsPath}/${file}`, 'utf8');
-                const testsMatch = content.match(/tests="(\d+)"/);
-                const failuresMatch = content.match(/failures="(\d+)"/);
-                const skippedMatch = content.match(/skipped="(\d+)"/);
-
-                if (testsMatch) {
-                  const total = parseInt(testsMatch[1]);
-                  const failures = failuresMatch ? parseInt(failuresMatch[1]) : 0;
-                  const skip = skippedMatch ? parseInt(skippedMatch[1]) : 0;
-
-                  failed += failures;
-                  skipped += skip;
-                  passed += total - failures - skip;
-                }
-              }
-
-              const status = failed > 0 ? '❌' : '✅';
-              const message = `## ${status} Test Results\n\n` +
-                `- **Passed:** ${passed}\n` +
-                `- **Failed:** ${failed}\n` +
-                `- **Skipped:** ${skipped}\n` +
-                `- **Total:** ${passed + failed + skipped}\n\n` +
-                (failed > 0
-                  ? '⚠️ Some tests failed. Please check the workflow logs for details.'
-                  : '🎉 All tests passed successfully!');
-
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: message
-              });
-            } catch (error) {
-              console.error('Error reading test results:', error);
-            }
 
   build:
     name: Build Application
