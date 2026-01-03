@@ -1,0 +1,40 @@
+### Event Logs API Testing
+
+@host = http://localhost:8080
+
+### Health Check
+GET {{host}}/actuator/health
+
+### Prometheus Metrics
+GET {{host}}/actuator/prometheus
+
+### Get Settings
+GET {{host}}/settings
+
+### Update Settings
+PUT {{host}}/settings
+Content-Type: application/json
+
+{
+  "retentionPeriodDays": 45,
+  "maxExportSize": 12000
+}
+
+### Search All Events
+GET {{host}}/events
+
+### Search Events with Filters
+GET {{host}}/events?user=test-user&category=USER_ACTION&page=0&size=20
+
+### Search Events by Date Range
+GET {{host}}/events?startDate=2026-01-01T00:00:00Z&endDate=2026-01-31T23:59:59Z
+
+### Search Events by Project and Environment
+GET {{host}}/events?project=test-project&environment=development
+
+### Search Events with Sorting
+GET {{host}}/events?sortBy=timestamp&sortOrder=desc&size=10
+
+### Export Events to CSV
+GET {{host}}/events/export
+Content-Type: application/json
