@@ -78,10 +78,14 @@ public final class KafkaEventConsumer {
         // Parse all messages
         for (String message : messages) {
             try {
+                logger.debug("Attempting to parse message: {}", message);
                 EventDto eventDto = objectMapper.readValue(message, EventDto.class);
                 eventDtos.add(eventDto);
+                logger.debug("Successfully parsed event with user: {}, category: {}",
+                    eventDto.getUser(), eventDto.getCategory());
             } catch (Exception e) {
-                logger.error("Failed to parse Kafka message: {}", message, e);
+                logger.error("Failed to parse Kafka message. Message content: {}", message);
+                logger.error("Parse error details:", e);
                 failedMessages.add(message);
                 eventsFailedCounter.increment();
             }

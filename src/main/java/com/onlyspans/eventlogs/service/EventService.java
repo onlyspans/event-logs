@@ -54,7 +54,7 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public void ingestEvents(@Valid List<EventDto> events) {
+    public void ingestEvents(List<EventDto> events) {
         if (events == null || events.isEmpty()) {
             logger.warn("Attempted to ingest empty or null event list");
             return;

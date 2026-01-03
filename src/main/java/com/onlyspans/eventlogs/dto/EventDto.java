@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EventDto {
 
-    @NotBlank(message = "ID is required")
     @JsonProperty("id")
     private String id;
 
@@ -35,21 +34,23 @@ public class EventDto {
     @JsonProperty("action")
     private String action;
 
-    @NotBlank(message = "Document is required")
-    @JsonProperty("document")
+    @JsonProperty("documentName")
     private String document;
 
-    @NotBlank(message = "Project is required")
     @JsonProperty("project")
     private String project;
 
-    @NotBlank(message = "Environment is required")
     @JsonProperty("environment")
     private String environment;
 
-    @NotBlank(message = "Tenant is required")
     @JsonProperty("tenant")
     private String tenant;
+
+    @JsonProperty("correlationId")
+    private String correlationId;
+
+    @JsonProperty("traceId")
+    private String traceId;
 
     @Valid
     @JsonProperty("details")
