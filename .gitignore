@@ -38,5 +38,5 @@ out/
 .vscode/
 
 ## Volumes
-volumes/**
-!volumes/.gitkeep
+data/**
+!data/.gitkeep
