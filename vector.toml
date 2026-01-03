@@ -2,9 +2,9 @@
  type = "docker_logs"
  docker_host = "unix:///var/run/docker.sock"
 
-[sources.java_logs]
+[sources.app_logs]
 type = "file"
-include = ["/var/log/java/*.ndjson", "/var/log/java/*.log"]
+include = ["/var/log/app/*.ndjson", "/var/log/app/*.log"]
 read_from = "end"
 
 [transforms.parse_docker]
@@ -20,9 +20,9 @@ source = '''
   .level = "info"
 '''
 
-[transforms.parse_java]
+[transforms.parse_app]
 type = "remap"
-inputs = ["java_logs"]
+inputs = ["app_logs"]
 source = '''
   # Try to parse as JSON first (for .ndjson files)
   parsed, err = parse_json(.message)
@@ -43,7 +43,7 @@ source = '''
 
 [sinks.victoria_logs]
 type = "http"
-inputs = ["parse_java", "parse_docker"]
+inputs = ["parse_app", "parse_docker"]
 uri = "http://victoria-logs:9428/insert/jsonline"
 compression = "gzip"
 healthcheck.enabled = false

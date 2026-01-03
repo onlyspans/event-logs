@@ -133,7 +133,7 @@ services:
     volumes:
       - ./vector.toml:/etc/vector/vector.toml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data/app-logs:/var/log/java:ro
+      - ./data/app-logs:/var/log/app:ro
     depends_on:
       - victoria-logs
     command: ["--config", "/etc/vector/vector.toml"]
