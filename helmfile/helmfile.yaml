@@ -1,0 +1,11 @@
+repositories: []
+
+releases:
+  - name: event-logs-app
+    namespace: event-logs
+    chart: ./charts/app
+    wait: true
+    timeout: 300
+    cleanupOnFail: true
+    values:
+      - values/app.yaml

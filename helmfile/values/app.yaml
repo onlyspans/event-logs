@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: your-dockerhub-username/eventlogs
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+env:
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: eventlogs
+  POSTGRES_USER: postgres
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+secrets:
+  POSTGRES_PASSWORD: postgres
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
