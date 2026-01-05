@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
@@ -25,7 +26,17 @@ class SettingsControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private SettingsRepository settingsRepository;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
+
+    {
+        restTemplate = new RestTemplate();
+        // Don't throw exceptions on 4xx/5xx responses
+        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+            public boolean hasError(HttpStatus statusCode) {
+                return false;
+            }
+        });
+    }
 
     private String getBaseUrl() {
         return "http://localhost:" + port;
@@ -139,16 +150,18 @@ class SettingsControllerIntegrationTest extends BaseIntegrationTest {
         // Given - invalid retention period (0)
         SettingsDto invalidDto = new SettingsDto(0, 10000);
 
-        // When
-        ResponseEntity<SettingsDto> response = restTemplate.exchange(
-                getBaseUrl() + "/settings",
-                HttpMethod.PUT,
-                new HttpEntity<>(invalidDto),
-                SettingsDto.class
-        );
-
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        // When/Then
+        try {
+            restTemplate.exchange(
+                    getBaseUrl() + "/settings",
+                    HttpMethod.PUT,
+                    new HttpEntity<>(invalidDto),
+                    SettingsDto.class
+            );
+            fail("Expected HttpClientErrorException");
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+        }
     }
 
     @Test
@@ -156,16 +169,18 @@ class SettingsControllerIntegrationTest extends BaseIntegrationTest {
         // Given - invalid retention period (too large)
         SettingsDto invalidDto = new SettingsDto(3651, 10000);
 
-        // When
-        ResponseEntity<SettingsDto> response = restTemplate.exchange(
-                getBaseUrl() + "/settings",
-                HttpMethod.PUT,
-                new HttpEntity<>(invalidDto),
-                SettingsDto.class
-        );
-
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        // When/Then
+        try {
+            restTemplate.exchange(
+                    getBaseUrl() + "/settings",
+                    HttpMethod.PUT,
+                    new HttpEntity<>(invalidDto),
+                    SettingsDto.class
+            );
+            fail("Expected HttpClientErrorException");
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+        }
     }
 
     @Test
