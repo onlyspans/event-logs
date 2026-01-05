@@ -53,7 +53,7 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
 
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + getBaseUrl() + "/events",
+                getBaseUrl() + "/events",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<QueryResult>() {}
