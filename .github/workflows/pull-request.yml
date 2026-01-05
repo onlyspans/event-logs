@@ -4,12 +4,9 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
 
 jobs:
-  test:
+  unit-tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
 
@@ -32,33 +29,37 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run tests
+      - name: Run unit tests
         run: ./gradlew test --no-daemon
 
-      - name: Publish test results
+      - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
             build/test-results/test/*.xml
-          check_name: Test Results
-          comment_title: Test Results
+          check_name: Unit Test Results
+          comment_title: Unit Test Results
           compare_to_earlier_commit: false
 
-      - name: Upload test reports
+      - name: Upload unit test reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-reports
+          name: unit-test-reports
           path: |
             build/reports/tests/test/
             build/test-results/test/
           retention-days: 30
 
-  build:
-    name: Build Application
+  integration-tests:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
-    needs: test
+
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -74,12 +75,25 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build -x test --no-daemon
+      - name: Run integration tests
+        run: ./gradlew integrationTest --no-daemon
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Publish integration test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          name: build-artifacts
-          path: build/libs/*.jar
-          retention-days: 7
+          files: |
+            build/test-results/integrationTest/*.xml
+          check_name: Integration Test Results
+          comment_title: Integration Test Results
+          compare_to_earlier_commit: false
+
+      - name: Upload integration test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-reports
+          path: |
+            build/reports/tests/integrationTest/
+            build/test-results/integrationTest/
+          retention-days: 5
