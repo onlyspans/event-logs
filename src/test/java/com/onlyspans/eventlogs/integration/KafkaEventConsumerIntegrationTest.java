@@ -9,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,15 +17,6 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
-@EmbeddedKafka(
-        partitions = 1,
-        topics = {"event-logs"},
-        brokerProperties = {
-                "listeners=PLAINTEXT://localhost:9092",
-                "port=9092"
-        }
-)
-@DirtiesContext
 class KafkaEventConsumerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -201,27 +190,23 @@ class KafkaEventConsumerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldSetTimestampIfNotProvided() throws Exception {
+    void shouldStoreEventWithProvidedTimestamp() throws Exception {
         // Given
+        Instant customTimestamp = Instant.parse("2024-01-15T10:30:00Z");
         EventDto eventDto = createEventDto("user", "cat", "act");
-        eventDto.setTimestamp(null);
+        eventDto.setTimestamp(customTimestamp);
         String message = objectMapper.writeValueAsString(eventDto);
-
-        Instant before = Instant.now();
 
         // When
         kafkaTemplate.send(TOPIC, message);
 
         // Then
-        Instant after = Instant.now();
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
             List<EventEntity> events = eventRepository.findAll();
             assertEquals(1, events.size());
 
             EventEntity stored = events.get(0);
-            assertNotNull(stored.getTimestamp());
-            assertTrue(stored.getTimestamp().isAfter(before.minusSeconds(1)));
-            assertTrue(stored.getTimestamp().isBefore(after.plusSeconds(10)));
+            assertEquals(customTimestamp, stored.getTimestamp());
         });
     }
 
