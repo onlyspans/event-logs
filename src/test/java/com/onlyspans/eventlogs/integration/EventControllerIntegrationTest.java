@@ -1,6 +1,5 @@
 package com.onlyspans.eventlogs.integration;
 
-import com.onlyspans.eventlogs.dto.EventDto;
 import com.onlyspans.eventlogs.dto.QueryResult;
 import com.onlyspans.eventlogs.entity.EventEntity;
 import com.onlyspans.eventlogs.repository.EventRepository;
@@ -17,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -437,7 +435,6 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
     private EventEntity createTestEvent(String user, String category, String action,
                                         String document, String project, String environment, String tenant) {
         EventEntity event = new EventEntity();
-        event.setId(UUID.randomUUID());
         event.setTimestamp(Instant.now());
         event.setUser(user);
         event.setCategory(category);
@@ -451,7 +448,6 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
 
     private EventEntity createTestEventWithTimestamp(String user, String category, String action, Instant timestamp) {
         EventEntity event = new EventEntity();
-        event.setId(UUID.randomUUID());
         event.setTimestamp(timestamp);
         event.setUser(user);
         event.setCategory(category);

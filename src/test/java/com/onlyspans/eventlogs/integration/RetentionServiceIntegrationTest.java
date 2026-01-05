@@ -198,7 +198,6 @@ class RetentionServiceIntegrationTest extends BaseIntegrationTest {
 
     private EventEntity createEventWithTimestamp(Instant timestamp) {
         EventEntity event = new EventEntity();
-        event.setId(UUID.randomUUID());
         event.setTimestamp(timestamp);
         event.setUser("test-user");
         event.setCategory("test-category");
