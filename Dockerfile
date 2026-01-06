@@ -1,6 +1,10 @@
 # Build stage
 FROM eclipse-temurin:25-jdk AS build
 
+# Build arguments for versioning
+ARG VERSION=dev
+ARG REVISION=unknown
+
 WORKDIR /app
 
 # Copy gradle wrapper and configuration files
@@ -20,7 +24,17 @@ RUN ./gradlew bootJar --no-daemon -x test
 # Runtime stage
 FROM eclipse-temurin:25-jre
 
+# Pass build args to runtime stage
+ARG VERSION=dev
+ARG REVISION=unknown
+
 WORKDIR /app
+
+# Add labels for metadata
+LABEL org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.title="event-logs" \
+      org.opencontainers.image.description="OnlySpans Event Logs Service"
 
 # Create non-root user for security
 RUN groupadd -r spring && useradd -r -g spring spring && \
