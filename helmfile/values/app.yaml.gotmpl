@@ -19,7 +19,11 @@ env:
   POSTGRES_DB: "#{Octopus.Environment.Postgres.Database}"
   POSTGRES_USER: "#{Octopus.Environment.Postgres.User}"
   POSTGRES_PASSWORD: "#{Octopus.Environment.Postgres.Password}"
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: "#{Octopus.Environment.Kafka.BootstrapServers}"
+  KAFKA_HOST: "#{Octopus.Environment.Kafka.Host}"
+  KAFKA_PORT: "#{Octopus.Environment.Kafka.Port}"
+  KAFKA_USERNAME: "#{Octopus.Environment.Kafka.Username}"
+  KAFKA_PASSWORD: "#{Octopus.Environment.Kafka.Password}"
+  KAFKA_DBNAME: "#{Octopus.Environment.Kafka.DbName}"
 
 service:
   type: ClusterIP
