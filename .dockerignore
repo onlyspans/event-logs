@@ -43,3 +43,6 @@ compose.yaml
 
 # Scripts
 scripts
+
+# Helm
+helm
