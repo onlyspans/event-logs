@@ -12,6 +12,7 @@ env:
   IMAGE_NAME: event-logs
   OCTOPUS_PROJECT: event-logs
   OCTOPUS_SPACE: Default
+  OCTOPUS_SERVER_URL: http://octopus.onlyspans.ru
 
 jobs:
   release:
@@ -59,7 +60,7 @@ jobs:
       - name: Create Octopus release
         uses: docker://octopusdeploy/octo:latest
         env:
-          OCTOPUS_CLI_SERVER: ${{ secrets.OCTOPUS_SERVER_URL }}
+          OCTOPUS_CLI_SERVER: ${{ env.OCTOPUS_SERVER_URL }}
           OCTOPUS_CLI_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
         with:
           args: >-
