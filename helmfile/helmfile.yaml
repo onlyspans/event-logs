@@ -8,4 +8,4 @@ releases:
     timeout: 300
     cleanupOnFail: true
     values:
-      - values/app.yaml
+      - values/app.yaml.gotmpl

@@ -1,5 +1,6 @@
 replicaCount: 1
 
+# TODO: remove redundant values
 image:
   repository: your-dockerhub-username/eventlogs
   pullPolicy: IfNotPresent

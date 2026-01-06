@@ -1,28 +1,30 @@
 replicaCount: 1
 
 image:
-  repository: your-dockerhub-username/eventlogs
+  # TODO: extract to helpers
+  repository: onlyspans-private.registry.twcstorage.ru/eventlogs
   pullPolicy: IfNotPresent
+  # TODO: from Octopus. I saw they're being set with this "#{Octopus.Action.Package[Package].PackageVersion}"
   tag: "latest"
 
 resources:
   limits:
-    cpu: 1000m
-    memory: 1Gi
+    cpu: 512m
+    memory: 512Gi
   requests:
-    cpu: 500m
+    cpu: 256m
     memory: 512Mi
 
+# TODO: from Octopus
 env:
   POSTGRES_HOST: postgres
   POSTGRES_PORT: "5432"
   POSTGRES_DB: eventlogs
   POSTGRES_USER: postgres
   SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-
-secrets:
   POSTGRES_PASSWORD: postgres
 
+# TODO: Remove persistence and writing log to file
 persistence:
   enabled: true
   size: 1Gi
@@ -31,8 +33,10 @@ service:
   type: ClusterIP
   port: 8080
 
+# TODO: enable and set to event-logs.onlyspans.ru
 ingress:
   enabled: false
 
+# TODO: should use victoria metrics
 serviceMonitor:
   enabled: false
