@@ -58,3 +58,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the image repository
+*/}}
+{{- define "event-logs.imageRepository" -}}
+{{- .Values.image.repository | default "onlyspans-private.registry.twcstorage.ru/eventlogs" }}
+{{- end }}

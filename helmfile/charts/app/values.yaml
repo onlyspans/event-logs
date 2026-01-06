@@ -1,10 +1,9 @@
 replicaCount: 1
 
-# TODO: remove redundant values
 image:
-  repository: your-dockerhub-username/eventlogs
+  repository: ""
   pullPolicy: IfNotPresent
-  tag: ""  # defaults to .Chart.AppVersion
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -38,11 +37,7 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
-  hosts:
-    - host: event-logs.local
-      paths:
-        - path: /
-          pathType: Prefix
+  hosts: []
   tls: []
 
 resources:
@@ -84,22 +79,7 @@ tolerations: []
 
 affinity: {}
 
-env:
-  POSTGRES_HOST: postgres
-  POSTGRES_PORT: "5432"
-  POSTGRES_DB: eventlogs
-  POSTGRES_USER: postgres
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-
-secrets:
-  POSTGRES_PASSWORD: postgres
-
-persistence:
-  enabled: true
-  storageClass: ""
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  mountPath: /app/data
+env: {}
 
 serviceMonitor:
   enabled: false

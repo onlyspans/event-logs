@@ -1,42 +1,46 @@
 replicaCount: 1
 
 image:
-  # TODO: extract to helpers
   repository: onlyspans-private.registry.twcstorage.ru/eventlogs
   pullPolicy: IfNotPresent
-  # TODO: from Octopus. I saw they're being set with this "#{Octopus.Action.Package[Package].PackageVersion}"
-  tag: "latest"
+  tag: "#{Octopus.Action.Package[eventlogs].PackageVersion}"
 
 resources:
   limits:
     cpu: 512m
-    memory: 512Gi
+    memory: 512Mi
   requests:
     cpu: 256m
     memory: 512Mi
 
-# TODO: from Octopus
 env:
-  POSTGRES_HOST: postgres
-  POSTGRES_PORT: "5432"
-  POSTGRES_DB: eventlogs
-  POSTGRES_USER: postgres
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-  POSTGRES_PASSWORD: postgres
-
-# TODO: Remove persistence and writing log to file
-persistence:
-  enabled: true
-  size: 1Gi
+  POSTGRES_HOST: "#{Octopus.Environment.Postgres.Host}"
+  POSTGRES_PORT: "#{Octopus.Environment.Postgres.Port}"
+  POSTGRES_DB: "#{Octopus.Environment.Postgres.Database}"
+  POSTGRES_USER: "#{Octopus.Environment.Postgres.User}"
+  POSTGRES_PASSWORD: "#{Octopus.Environment.Postgres.Password}"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "#{Octopus.Environment.Kafka.BootstrapServers}"
 
 service:
   type: ClusterIP
   port: 8080
 
-# TODO: enable and set to event-logs.onlyspans.ru
 ingress:
-  enabled: false
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: event-logs.onlyspans.ru
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: event-logs-tls
+      hosts:
+        - event-logs.onlyspans.ru
 
-# TODO: should use victoria metrics
 serviceMonitor:
-  enabled: false
+  enabled: true
+  path: /actuator/prometheus
+  interval: 30s

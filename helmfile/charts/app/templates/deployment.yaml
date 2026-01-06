@@ -13,9 +13,8 @@ spec:
       {{- include "event-logs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       {{- with .Values.podAnnotations }}
+      annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
@@ -32,7 +31,7 @@ spec:
       - name: {{ .Chart.Name }}
         securityContext:
           {{- toYaml .Values.securityContext | nindent 12 }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        image: "{{ include "event-logs.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
@@ -43,30 +42,12 @@ spec:
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
-        {{- range $key, $value := .Values.secrets }}
-        - name: {{ $key }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ include "event-logs.fullname" $ }}
-              key: {{ $key }}
-        {{- end }}
         livenessProbe:
           {{- toYaml .Values.livenessProbe | nindent 12 }}
         readinessProbe:
           {{- toYaml .Values.readinessProbe | nindent 12 }}
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
-        {{- if .Values.persistence.enabled }}
-        volumeMounts:
-        - name: data
-          mountPath: {{ .Values.persistence.mountPath }}
-        {{- end }}
-      {{- if .Values.persistence.enabled }}
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: {{ include "event-logs.fullname" . }}-data
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
