@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "event-logs.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "event-logs.selectorLabels" . | nindent 6 }}
@@ -31,7 +29,7 @@ spec:
       - name: {{ .Chart.Name }}
         securityContext:
           {{- toYaml .Values.securityContext | nindent 12 }}
-        image: "{{ include "event-logs.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        image: "{{ required .Values.image.repository }}:{{ required .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
