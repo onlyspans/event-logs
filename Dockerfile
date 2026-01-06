@@ -59,3 +59,5 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 FROM flyway/flyway:10-alpine AS migrations
 
 COPY src/main/resources/db/migration /flyway/sql
+
+ENTRYPOINT ["flyway", "-connectRetries=60", "migrate"]
