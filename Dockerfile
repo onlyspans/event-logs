@@ -21,8 +21,15 @@ COPY src src
 # Build the application (skip tests for faster builds)
 RUN ./gradlew bootJar --no-daemon -x test
 
+# Migrations stage
+FROM flyway/flyway:10-alpine AS migrations
+
+COPY src/main/resources/db/migration /flyway/sql
+
+ENTRYPOINT ["flyway", "-connectRetries=60", "migrate"]
+
 # Runtime stage
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25-jre AS runtime
 
 # Pass build args to runtime stage
 ARG VERSION=dev
@@ -54,10 +61,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-# Migrations stage
-FROM flyway/flyway:10-alpine AS migrations
-
-COPY src/main/resources/db/migration /flyway/sql
-
-ENTRYPOINT ["flyway", "-connectRetries=60", "migrate"]
