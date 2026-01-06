@@ -54,3 +54,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Migrations stage
+FROM flyway/flyway:10-alpine AS migrations
+
+COPY src/main/resources/db/migration /flyway/sql

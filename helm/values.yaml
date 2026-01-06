@@ -2,6 +2,7 @@ replicaCount: 1
 
 image:
   repository: onlyspans-private.registry.twcstorage.ru/event-logs
+  migrationRepository: onlyspans-private.registry.twcstorage.ru/event-logs-migrations
   pullPolicy: IfNotPresent
   tag: ""  # Will be set by Octopus
 
