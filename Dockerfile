@@ -38,7 +38,6 @@ LABEL org.opencontainers.image.version="${VERSION}" \
 
 # Create non-root user for security
 RUN groupadd -r spring && useradd -r -g spring spring && \
-    mkdir -p /app/data/app-logs && \
     chown -R spring:spring /app
 
 # Copy the built JAR from build stage

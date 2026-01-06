@@ -4,21 +4,8 @@
 
     <springProperty scope="context" name="springAppName" source="spring.application.name"/>
 
-    <!-- Console Appender -->
+    <!-- Console Appender with JSON format for structured logging -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- File Appender - JSON format for Victoria Logs -->
-    <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./data/app-logs/application.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>./data/app-logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"application":"${springAppName:-eventlogs}"}</customFields>
             <includeMdcKeyName>traceId</includeMdcKeyName>
@@ -26,17 +13,9 @@
         </encoder>
     </appender>
 
-    <!-- Async Wrapper for better performance -->
-    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="FILE_JSON"/>
-    </appender>
-
-    <!-- Root Logger -->
+    <!-- Root Logger - Console only -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="ASYNC_FILE"/>
     </root>
 
     <!-- Application specific logging -->
