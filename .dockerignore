@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Build artifacts
+build
+.gradle
+*.class
+
+# IDE
+.idea
+.vscode
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs
+*.md
+HELP.md
+
+# Data and logs
+data
+logs
+*.log
+
+# Docker
+docker-compose.yml
+compose.yaml
+
+# Environment
+.env
+.env.*
+
+# Test
+.testcontainers
+
+# Scripts
+scripts

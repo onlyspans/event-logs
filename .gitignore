@@ -40,3 +40,6 @@ out/
 ## Volumes
 data/**
 !data/.gitkeep
+
+## macOS
+.DS_Store

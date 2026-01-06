@@ -35,6 +35,12 @@ public class KafkaConfig {
     @Value("${kafka.consumer.fetch-max-wait-ms:500}")
     private int fetchMaxWaitMs;
 
+    @Value("${kafka.username:}")
+    private String kafkaUsername;
+
+    @Value("${kafka.password:}")
+    private String kafkaPassword;
+
     @Bean
     public @NotNull ConsumerFactory<@NotNull String, @NotNull String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -63,6 +69,17 @@ public class KafkaConfig {
         // Session and heartbeat configuration
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000);
+
+        // SASL authentication configuration (if credentials are provided)
+        if (kafkaUsername != null && !kafkaUsername.isEmpty() && kafkaPassword != null && !kafkaPassword.isEmpty()) {
+            props.put("security.protocol", "SASL_PLAINTEXT");
+            props.put("sasl.mechanism", "PLAIN");
+            String jaasConfig = String.format(
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
+                kafkaUsername, kafkaPassword
+            );
+            props.put("sasl.jaas.config", jaasConfig);
+        }
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
