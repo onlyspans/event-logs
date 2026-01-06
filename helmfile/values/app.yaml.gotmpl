@@ -38,3 +38,7 @@ serviceMonitor:
   enabled: true
   path: /actuator/prometheus
   interval: 30s
+
+serviceAccount:
+    create: true
+    name: "event-logs-sa"
