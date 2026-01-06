@@ -28,17 +28,11 @@ service:
 ingress:
   enabled: true
   className: "nginx"
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
     - host: event-logs.onlyspans.ru
       paths:
         - path: /
           pathType: Prefix
-  tls:
-    - secretName: event-logs-tls
-      hosts:
-        - event-logs.onlyspans.ru
 
 serviceMonitor:
   enabled: true
