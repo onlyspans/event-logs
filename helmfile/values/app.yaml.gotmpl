@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: onlyspans-private.registry.twcstorage.ru/eventlogs
+  repository: onlyspans-private.registry.twcstorage.ru/event-logs
   pullPolicy: IfNotPresent
   tag: "#{Octopus.Action.Package[event-logs].PackageVersion}"
 
