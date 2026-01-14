@@ -38,15 +38,15 @@ public final class KafkaEventConsumer {
         this.eventService = eventService;
         this.objectMapper = objectMapper;
 
-        this.eventsReceivedCounter = Counter.builder("event_logs.kafka.received")
+        this.eventsReceivedCounter = Counter.builder("event_logs_received")
                 .description("Total number of events received from Kafka")
                 .register(meterRegistry);
 
-        this.batchesProcessedCounter = Counter.builder("event_logs.kafka.batches_processed")
+        this.batchesProcessedCounter = Counter.builder("event_logs_batches_processed")
                 .description("Total number of batches processed")
                 .register(meterRegistry);
 
-        this.eventsFailedCounter = Counter.builder("event_logs.kafka.failed")
+        this.eventsFailedCounter = Counter.builder("event_logs_failed")
                 .description("Total number of events that failed to process")
                 .register(meterRegistry);
     }
