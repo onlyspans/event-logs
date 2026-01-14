@@ -73,9 +73,9 @@ public class KafkaConfig {
         // SASL authentication configuration (if credentials are provided)
         if (kafkaUsername != null && !kafkaUsername.isEmpty() && kafkaPassword != null && !kafkaPassword.isEmpty()) {
             props.put("security.protocol", "SASL_PLAINTEXT");
-            props.put("sasl.mechanism", "PLAIN");
+            props.put("sasl.mechanism", "SCRAM-SHA-512");
             String jaasConfig = String.format(
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
+                "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";",
                 kafkaUsername, kafkaPassword
             );
             props.put("sasl.jaas.config", jaasConfig);
