@@ -86,7 +86,7 @@ affinity: {}
 
 env: {}
 
-serviceMonitor:
-  enabled: false
-  interval: 30s
+vmServiceScrape:
+  enabled: true
+  interval: 15s
   path: /actuator/prometheus
