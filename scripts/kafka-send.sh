@@ -1,12 +1,17 @@
 #!/bin/bash
 
-# Script to send events to Kafka topic using kcat
-
 # Kafka connection settings
-HOST="91.210.171.173:9092"
+HOST="kafka.onlyspans.ru:9092"
 TOPIC="event-logs"
 USER="event-logs"
-PASS=
+PASS="${KAFKA_PASSWORD}"
+
+# Check if KAFKA_PASSWORD is set
+if [ -z "$PASS" ]; then
+    echo "Error: KAFKA_PASSWORD environment variable is not set"
+    echo "Usage: KAFKA_PASSWORD='your-password' $0"
+    exit 1
+fi
 
 echo "Sending test event to Kafka topic: $TOPIC"
 
