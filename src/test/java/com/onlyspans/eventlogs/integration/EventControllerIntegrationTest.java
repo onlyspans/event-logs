@@ -1,6 +1,8 @@
 package com.onlyspans.eventlogs.integration;
 
+import com.onlyspans.eventlogs.dto.ExportEventsRequest;
 import com.onlyspans.eventlogs.dto.QueryResult;
+import com.onlyspans.eventlogs.dto.SearchEventsRequest;
 import com.onlyspans.eventlogs.entity.EventEntity;
 import com.onlyspans.eventlogs.repository.EventRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -9,8 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -49,11 +54,16 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user1", "category1", "action1", "doc1", "proj1", "env1", "tenant1");
         createTestEvent("user2", "category2", "action2", "doc2", "proj2", "env2", "tenant2");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
                 getBaseUrl() + "/events",
-                HttpMethod.GET,
-                null,
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -71,11 +81,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("bob", "category2", "action2", "doc2", "proj2", "env2", "tenant2");
         createTestEvent("alice", "category3", "action3", "doc3", "proj3", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setUser("alice");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?user=alice",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -94,11 +110,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user2", "data-access", "read", "doc2", "proj2", "env2", "tenant2");
         createTestEvent("user3", "authentication", "logout", "doc3", "proj3", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setCategory("authentication");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?category=authentication",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -118,11 +140,19 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("bob", "auth", "login", "doc3", "project-a", "prod", "tenant1");
         createTestEvent("alice", "data", "read", "doc4", "project-b", "dev", "tenant2");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setUser("alice");
+        request.setCategory("auth");
+        request.setProject("project-a");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When - filter by user, category, and project
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?user=alice&category=auth&project=project-a",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -149,10 +179,16 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
 
         // When - filter last 36 hours
         Instant startDate = now.minus(36, ChronoUnit.HOURS);
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setStartDate(startDate);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?startDate=" + startDate.toString(),
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -169,11 +205,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user2", "cat2", "update", "doc2", "proj2", "env2", "tenant2");
         createTestEvent("user3", "cat3", "delete", "doc3", "proj3", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setAction("update");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?action=update",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -190,11 +232,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user1", "cat1", "act1", "invoice-123", "proj1", "env1", "tenant1");
         createTestEvent("user2", "cat2", "act2", "contract-456", "proj2", "env2", "tenant2");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setDocument("invoice-123");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?document=invoice-123",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -212,11 +260,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user2", "cat2", "act2", "doc2", "backend", "env2", "tenant2");
         createTestEvent("user3", "cat3", "act3", "doc3", "frontend", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setProject("frontend");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?project=frontend",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -235,11 +289,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user2", "cat2", "act2", "doc2", "proj2", "staging", "tenant2");
         createTestEvent("user3", "cat3", "act3", "doc3", "proj3", "production", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setEnvironment("production");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?environment=production",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -258,11 +318,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("user2", "cat2", "act2", "doc2", "proj2", "env2", "widgets-inc");
         createTestEvent("user3", "cat3", "act3", "doc3", "proj3", "env3", "acme-corp");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setTenant("acme-corp");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?tenant=acme-corp",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -285,11 +351,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         event2.setCorrelationId("corr-456");
         eventRepository.save(event2);
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setCorrelationId("corr-123");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?correlationId=corr-123",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -311,11 +383,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         event2.setTraceId("trace-xyz");
         eventRepository.save(event2);
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setTraceId("trace-abc");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?traceId=trace-abc",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -333,11 +411,18 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
             createTestEvent("user" + i, "cat", "act", "doc", "proj", "env", "tenant");
         }
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         // When - get first page (10 items)
+        SearchEventsRequest request1 = new SearchEventsRequest();
+        request1.setPage(0);
+        request1.setSize(10);
+        HttpEntity<SearchEventsRequest> entity1 = new HttpEntity<>(request1, headers);
         ResponseEntity<QueryResult> page1 = restTemplate.exchange(
-                getBaseUrl() + "/events?page=0&size=10",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity1,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -350,10 +435,14 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         assertEquals(10, page1.getBody().getSize());
 
         // When - get second page
+        SearchEventsRequest request2 = new SearchEventsRequest();
+        request2.setPage(1);
+        request2.setSize(10);
+        HttpEntity<SearchEventsRequest> entity2 = new HttpEntity<>(request2, headers);
         ResponseEntity<QueryResult> page2 = restTemplate.exchange(
-                getBaseUrl() + "/events?page=1&size=10",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity2,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -371,11 +460,18 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("alice", "cat2", "act2", "doc2", "proj2", "env2", "tenant2");
         createTestEvent("bob", "cat3", "act3", "doc3", "proj3", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setSortBy("user");
+        request.setSortOrder("asc");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?sortBy=user&sortOrder=asc",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -395,11 +491,18 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         createTestEvent("bob", "cat2", "act2", "doc2", "proj2", "env2", "tenant2");
         createTestEvent("charlie", "cat3", "act3", "doc3", "proj3", "env3", "tenant3");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setSortBy("user");
+        request.setSortOrder("desc");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?sortBy=user&sortOrder=desc",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
@@ -417,11 +520,17 @@ class EventControllerIntegrationTest extends BaseIntegrationTest {
         // Given
         createTestEvent("user1", "cat1", "act1", "doc1", "proj1", "env1", "tenant1");
 
+        SearchEventsRequest request = new SearchEventsRequest();
+        request.setUser("nonexistent");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SearchEventsRequest> entity = new HttpEntity<>(request, headers);
+
         // When
         ResponseEntity<QueryResult> response = restTemplate.exchange(
-                getBaseUrl() + "/events?user=nonexistent",
-                HttpMethod.GET,
-                null,
+                getBaseUrl() + "/events",
+                HttpMethod.POST,
+                entity,
                 new ParameterizedTypeReference<QueryResult>() {}
         );
 
