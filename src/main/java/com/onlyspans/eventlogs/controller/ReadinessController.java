@@ -21,10 +21,8 @@ public class ReadinessController {
     public ResponseEntity<Map<String, Object>> ready() {
         Map<String, Object> health = new HashMap<>();
         try {
-            // Check Kafka connectivity
             kafkaTemplate.getProducerFactory().createProducer();
             
-            // If we get here, Kafka is accessible
             health.put("status", "UP");
             health.put("kafka", "connected");
             return ResponseEntity.ok(health);

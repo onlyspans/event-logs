@@ -49,28 +49,17 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
-        // Error handling deserializers wrap the actual deserializers
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
 
-        // Batch configuration
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-
-        // fetch.min.bytes: Minimum amount of data broker should return (default: 1 byte)
-        // Setting to 1 ensures low latency even with single messages
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
-
-        // fetch.max.wait.ms: Max time broker will wait before responding (default: 500ms)
-        // Lower value = lower latency, higher value = better batching
         props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMs);
-
-        // Session and heartbeat configuration
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000);
 
-        // SASL authentication configuration (if credentials are provided)
         if (kafkaUsername != null && !kafkaUsername.isEmpty() && kafkaPassword != null && !kafkaPassword.isEmpty()) {
             props.put("security.protocol", "SASL_PLAINTEXT");
             props.put("sasl.mechanism", "SCRAM-SHA-512");
@@ -91,7 +80,6 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setConcurrency(1);
-        // Enable batch listener mode for batch processing
         factory.setBatchListener(true);
         return factory;
     }

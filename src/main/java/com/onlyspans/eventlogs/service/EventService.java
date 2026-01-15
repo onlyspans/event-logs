@@ -9,7 +9,6 @@ import com.onlyspans.eventlogs.entity.EventEntity;
 import com.onlyspans.eventlogs.storage.IEventStorage;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +96,6 @@ public class EventService implements IEventService {
     @Override
     public void exportCsv(QueryDto query, OutputStream outputStream) {
         try {
-            // Limit export size
             QueryDto limitedQuery = new QueryDto();
             limitedQuery.setUser(query.getUser());
             limitedQuery.setCategory(query.getCategory());
@@ -126,14 +124,12 @@ public class EventService implements IEventService {
             try (CSVWriter writer = new CSVWriter(
                 new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
                 
-                // Write header
                 writer.writeNext(new String[]{
                     "ID", "Timestamp", "User", "Category", "Action", "Document",
                     "Project", "Environment", "Tenant", "Correlation ID", "Trace ID",
                     "IP Address", "User Agent", "Additional Info"
                 });
 
-                // Write data
                 for (EventEntity entity : entities) {
                     writer.writeNext(new String[]{
                         entity.getId() != null ? entity.getId().toString() : "",
@@ -171,7 +167,6 @@ public class EventService implements IEventService {
             try {
                 entity.setId(UUID.fromString(dto.getId()));
             } catch (IllegalArgumentException e) {
-                // If ID is not a valid UUID, let JPA generate one
                 logger.warn("Invalid UUID format in DTO: {}", dto.getId());
             }
         }
