@@ -55,6 +55,16 @@ dependencies {
 
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+    
+    // Ensure MapStruct and Lombok work together
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+}
+
+// Configure annotation processor options for MapStruct
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+        '-Amapstruct.defaultComponentModel=spring'
+    ]
 }
 
 tasks.named('test') {
