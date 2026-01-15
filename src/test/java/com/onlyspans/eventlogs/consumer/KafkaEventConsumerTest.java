@@ -42,7 +42,7 @@ class KafkaEventConsumerTest {
     }
 
     @Test
-    void consumeEvents_shouldProcessValidMessages() throws Exception {
+    void consumeEvents_shouldProcessValidMessages() {
         // Given
         String message = createValidEventJson();
         List<String> messages = List.of(message);
@@ -65,7 +65,7 @@ class KafkaEventConsumerTest {
     }
 
     @Test
-    void consumeEvents_shouldProcessMultipleMessages() throws Exception {
+    void consumeEvents_shouldProcessMultipleMessages() {
         // Given
         String message1 = createValidEventJson();
         String message2 = createValidEventJson();
@@ -85,7 +85,7 @@ class KafkaEventConsumerTest {
     }
 
     @Test
-    void consumeEvents_shouldSkipInvalidMessagesButProcessValid() throws Exception {
+    void consumeEvents_shouldSkipInvalidMessagesButProcessValid() {
         // Given
         String validMessage = createValidEventJson();
         String invalidMessage = "{invalid json}";
@@ -120,7 +120,7 @@ class KafkaEventConsumerTest {
     }
 
     @Test
-    void consumeEvents_shouldThrowExceptionWhenStorageFails() throws Exception {
+    void consumeEvents_shouldThrowExceptionWhenStorageFails() {
         // Given
         String message = createValidEventJson();
         List<String> messages = List.of(message);
@@ -159,7 +159,7 @@ class KafkaEventConsumerTest {
     }
 
     @Test
-    void consumeEvents_shouldHandleNullAcknowledgment() throws Exception {
+    void consumeEvents_shouldHandleNullAcknowledgment() {
         // Given
         String message = createValidEventJson();
         List<String> messages = List.of(message);

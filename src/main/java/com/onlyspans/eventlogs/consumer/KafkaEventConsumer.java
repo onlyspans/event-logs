@@ -75,7 +75,6 @@ public final class KafkaEventConsumer {
         List<EventDto> eventDtos = new ArrayList<>();
         List<String> failedMessages = new ArrayList<>();
 
-        // Parse all messages
         for (String message : messages) {
             try {
                 logger.debug("Attempting to parse message: {}", message);
@@ -91,25 +90,21 @@ public final class KafkaEventConsumer {
             }
         }
 
-        // If all messages failed to parse, don't acknowledge
         if (eventDtos.isEmpty()) {
             logger.error("All {} messages in batch failed to parse", messages.size());
             throw new RuntimeException("Failed to parse entire batch");
         }
 
-        // Write to storage via EventService (handles conversion and storage)
         try {
             eventService.ingestEvents(eventDtos);
             logger.info("Successfully processed {} events", eventDtos.size());
             batchesProcessedCounter.increment();
 
-            // Acknowledge only after successful write to storage
             if (acknowledgment != null) {
                 acknowledgment.acknowledge();
                 logger.debug("Acknowledged batch of {} messages", messages.size());
             }
 
-            // Log failed messages for monitoring
             if (!failedMessages.isEmpty()) {
                 logger.warn("Batch contained {} failed messages out of {} total. " +
                     "Successfully processed {} messages.",
