@@ -43,13 +43,13 @@ public class EventService implements IEventService {
     @Autowired
     public EventService(IEventStorage eventStorage, MeterRegistry meterRegistry) {
         this.eventStorage = eventStorage;
-        this.eventsIngestedCounter = Counter.builder("event_logs.ingested")
+        this.eventsIngestedCounter = Counter.builder("event_logs_ingested")
             .description("Total number of events ingested")
             .register(meterRegistry);
-        this.eventsSearchedCounter = Counter.builder("event_logs.searched")
+        this.eventsSearchedCounter = Counter.builder("event_logs_searched")
             .description("Total number of search operations")
             .register(meterRegistry);
-        this.eventsExportedCounter = Counter.builder("event_logs.exported")
+        this.eventsExportedCounter = Counter.builder("event_logs_exported")
             .description("Total number of events exported")
             .register(meterRegistry);
     }

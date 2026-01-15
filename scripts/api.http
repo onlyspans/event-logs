@@ -1,6 +1,7 @@
 ### Event Logs API Testing
 
-@host = http://localhost:8080
+# @host = http://localhost:8080
+@host = http://event-logs.onlyspans.ru
 
 ### Health Check
 GET {{host}}/actuator/health

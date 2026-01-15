@@ -5,6 +5,7 @@ metadata:
   name: {{ include "event-logs.fullname" . }}
   labels:
     {{- include "event-logs.labels" . | nindent 4 }}
+    role: metrics
 spec:
   selector:
     matchLabels:
