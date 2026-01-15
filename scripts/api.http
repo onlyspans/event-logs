@@ -22,20 +22,88 @@ Content-Type: application/json
 }
 
 ### Search All Events
-GET {{host}}/events
+POST {{host}}/events
+Content-Type: application/json
+
+{
+}
 
 ### Search Events with Filters
-GET {{host}}/events?user=test-user&category=USER_ACTION&page=0&size=20
+POST {{host}}/events
+Content-Type: application/json
+
+{
+  "user": "test-user",
+  "category": "USER_ACTION",
+  "page": 0,
+  "size": 20
+}
 
 ### Search Events by Date Range
-GET {{host}}/events?startDate=2026-01-01T00:00:00Z&endDate=2026-01-31T23:59:59Z
+POST {{host}}/events
+Content-Type: application/json
+
+{
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-01-31T23:59:59Z"
+}
 
 ### Search Events by Project and Environment
-GET {{host}}/events?project=test-project&environment=development
+POST {{host}}/events
+Content-Type: application/json
+
+{
+  "project": "test-project",
+  "environment": "development"
+}
 
 ### Search Events with Sorting
-GET {{host}}/events?sortBy=timestamp&sortOrder=desc&size=10
+POST {{host}}/events
+Content-Type: application/json
+
+{
+  "sortBy": "timestamp",
+  "sortOrder": "desc",
+  "size": 10
+}
+
+### Search Events with Multiple Filters
+POST {{host}}/events
+Content-Type: application/json
+
+{
+  "user": "alice",
+  "category": "authentication",
+  "action": "login",
+  "project": "frontend",
+  "environment": "production",
+  "tenant": "acme-corp",
+  "correlationId": "corr-123",
+  "traceId": "trace-456",
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-01-31T23:59:59Z",
+  "sortBy": "timestamp",
+  "sortOrder": "desc",
+  "page": 0,
+  "size": 20
+}
 
 ### Export Events to CSV
-GET {{host}}/events/export
+POST {{host}}/events/export
 Content-Type: application/json
+
+{
+}
+
+### Export Events to CSV with Filters
+POST {{host}}/events/export
+Content-Type: application/json
+
+{
+  "user": "test-user",
+  "category": "USER_ACTION",
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-01-31T23:59:59Z",
+  "sortBy": "timestamp",
+  "sortOrder": "desc"
+}
